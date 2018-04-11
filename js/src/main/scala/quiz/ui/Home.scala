@@ -3,18 +3,26 @@ package quiz.ui
 import cats.implicits._
 import cats._
 import cats.data._
-import com.thoughtworks.binding.Binding.Vars
+import com.thoughtworks.binding.Binding.{Var, Vars}
 import com.thoughtworks.binding.{Binding, dom}
 import org.scalajs.dom.raw.{MouseEvent, Node}
+import org.scalajs.dom.document
 import quiz.Domain.{Quiz, UserId}
 import quiz.{Main, SitePart}
 import quiz.services.{QuizService, UserService}
 
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.scalajs.js
 
 object Home extends SitePart {
 
   override def link: String = s"#home"
+
+  @js.native
+  trait BootstrapModal extends js.Any {
+    def modal(action: String): BootstrapModal = js.native
+    def modal(options: js.Any): BootstrapModal = js.native
+  }
 
   object Model {
 
@@ -30,10 +38,13 @@ object Home extends SitePart {
     val quizes = Vars[Quiz[UserId]]()
   }
 
+
   @dom private def quizDescription(quiz: Quiz[UserId]): Binding[Node] = {
     val openRunner = { event: MouseEvent =>
-      QuizRunner.Model.quiz.value = Some(quiz)
-      Main.route.state.value = QuizRunner
+      QuizModal.Model.quiz.value = Some(quiz)
+      document.getElementById("quizModal")
+        .asInstanceOf[BootstrapModal]
+        .modal("show")
     }
 
     <div class="row">
@@ -47,6 +58,7 @@ object Home extends SitePart {
 
   @dom private def renderQuizes: Binding[Node] = {
     <div class="container">
+      { QuizModal.render.bind }
       {
       for (quiz <- Model.quizes) yield {
         quizDescription(quiz).bind

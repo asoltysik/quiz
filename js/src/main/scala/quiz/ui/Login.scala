@@ -14,7 +14,8 @@ object Login extends SitePart {
   override def link: String = s"#login"
 
   @dom def render: Binding[Node] = {
-    def submit() = {
+
+    val keyDownHandler = { event: MouseEvent =>
       val email = document.getElementById("inputEmail").asInstanceOf[html.Input].value
       val password = document.getElementById("inputPassword").asInstanceOf[html.Input].value
       UserService.login(UserCredentials(email, password))
@@ -23,10 +24,6 @@ object Login extends SitePart {
           Main.route.state.value = Home
         })
         .leftMap(e => println(e))
-    }
-
-    val keyDownHandler = { event: MouseEvent =>
-      submit()
     }
 
     <div>

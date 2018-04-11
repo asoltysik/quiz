@@ -1,14 +1,14 @@
 package quiz
 
 import cats.implicits._
-import com.thoughtworks.binding.Binding.Var
+import com.thoughtworks.binding.Binding.{Var, Vars}
 import com.thoughtworks.binding.{Binding, Route, dom}
 import org.scalajs.dom.document
 import org.scalajs.dom.raw.{MouseEvent, Node}
 import org.scalajs.dom.window.location
 import quiz.Domain.UserInfo
 import quiz.services.UserService
-import quiz.ui.{Home, Login, QuizRunner}
+import quiz.ui.{Home, Login, QuizModal}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
@@ -21,6 +21,7 @@ object Main extends {
 
   object Model {
     val user = Var[Option[UserInfo]](None)
+    List(1, 2, 3).all
   }
 
   def isLogged: Boolean = Model.user.value.isDefined
@@ -33,7 +34,6 @@ object Main extends {
 
   val parts = Seq(
     Login,
-    QuizRunner,
     defaultPart
   )
 

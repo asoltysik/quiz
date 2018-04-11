@@ -27,11 +27,9 @@ object Main extends App {
       }
     } ~
     rejectEmptyResponse {
-      Session.requireSession { session =>
-        QuizService.route ~
-        pathPrefix("users") {
-          UserService.route
-        }
+      QuizService.route ~
+      pathPrefix("users") {
+        UserService.route
       }
     } ~
     pathPrefix("session") {

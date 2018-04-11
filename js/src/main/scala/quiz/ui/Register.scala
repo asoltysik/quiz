@@ -1,0 +1,48 @@
+package quiz.ui
+
+import com.thoughtworks.binding.Binding
+import org.scalajs.dom.{document, html}
+import org.scalajs.dom.raw.{MouseEvent, Node}
+import quiz.Domain.User
+import quiz.Utils.BadRequestError
+import quiz.{Main, SitePart}
+import quiz.services.UserService
+
+object Register extends SitePart {
+  def link: String = "#register"
+
+  def render: Binding[Node] = {
+    val keyDownHandler = { event: MouseEvent =>
+      val email = document.getElementById("inputEmailRegister")
+        .asInstanceOf[html.Input].value
+      val password = document.getElementById("inputPasswordRegister")
+        .asInstanceOf[html.Input].value
+      val name = document.getElementById("inputNameRegister")
+          .asInstanceOf[html.Input].value
+      UserService.register(User(None, email, password, name))
+        .map { userInfo =>
+          Main.Model.user.value = Some(userInfo)
+          Main.route.state.value = Home
+        }
+        .leftMap {
+          case BadRequestError(req) => UserService.decodeErrors(req)
+        }
+    }
+
+    <div>
+      <div class="form-group">
+        <label for="inputEmailRegister">Email</label>
+        <input type="email" class="form-control" id="inputEmailRegister" placeholder="Email"/>
+      </div>
+      <div class="form-group">
+        <label for="inputPasswordRegister">Password</label>
+        <input type="password" class="form-control" id="inputPasswordRegister" placeholder="Password"/>
+      </div>
+      <div class="form-group">
+        <label for="inputNameRegister">Name</label>
+        <input type="text" class="form-control" id="inputNameRegister" placeholder="Name"/>
+      </div>
+      <button type="submit" class="btn btn-primary" onclick={keyDownHandler}>Register</button>
+    </div>
+  }
+}

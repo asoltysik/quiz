@@ -7,7 +7,7 @@ import doobie.postgres.implicits._
 import doobie.postgres._
 import cats.implicits._
 import io.circe.generic.extras.Configuration
-import quiz.Db
+import quiz.{Db, Session}
 import quiz.Domain._
 import shapeless._
 
@@ -25,34 +25,36 @@ object QuizService extends Directives {
   implicit val dummyListQuestion: Composite[List[Question]] = Composite.unitComposite.imap(x => List.empty[Question])(x => {})
 
   val route =
-    pathPrefix("quizes") {
-      post {
-        entity(as[Quiz[UserId]]) { quiz =>
-          complete(addQuiz(quiz).transact(Db.xa).unsafeToFuture())
-        }
-      } ~
-      path(IntNumber) { id =>
-          parameter("expanded".as[Boolean]) { expanded =>
-            if(expanded) {
-              complete(getExpandedQuiz(id).transact(Db.xa).unsafeToFuture())
-            } else {
-              complete(getQuiz(id).transact(Db.xa).unsafeToFuture())
-            }
-          }
-      } ~
-      get {
-        complete(getQuizes().transact(Db.xa).unsafeToFuture())
-      }
-    } ~
-    pathPrefix("questions") {
-      parameter("quizId".as[Int]) { quizId =>
-        get {
-          complete(getQuestionsForQuiz(quizId, false).transact(Db.xa).unsafeToFuture())
-        } ~
+    Session.requireSession { session =>
+      pathPrefix("quizes") {
         post {
-          entity(as[List[Question]]) { questionList =>
-            complete(addQuestions(quizId, questionList).transact(Db.xa).unsafeToFuture())
+          entity(as[Quiz[UserId]]) { quiz =>
+            complete(addQuiz(quiz).transact(Db.xa).unsafeToFuture())
           }
+        } ~
+          path(IntNumber) { id =>
+            parameter("expanded".as[Boolean]) { expanded =>
+              if (expanded) {
+                complete(getExpandedQuiz(id).transact(Db.xa).unsafeToFuture())
+              } else {
+                complete(getQuiz(id).transact(Db.xa).unsafeToFuture())
+              }
+            }
+          } ~
+          get {
+            complete(getQuizes().transact(Db.xa).unsafeToFuture())
+          }
+      } ~
+      pathPrefix("questions") {
+        parameter("quizId".as[Int]) { quizId =>
+          get {
+            complete(getQuestionsForQuiz(quizId, false).transact(Db.xa).unsafeToFuture())
+          } ~
+            post {
+              entity(as[List[Question]]) { questionList =>
+                complete(addQuestions(quizId, questionList).transact(Db.xa).unsafeToFuture())
+              }
+            }
         }
       }
     }

@@ -14,13 +14,20 @@ import cats.implicits._
 import cats.data._
 import cats.implicits._
 import org.scalajs.dom.raw.XMLHttpRequest
-import quiz.Utils.StatusCodeError
+import quiz.Errors.{Error, Errors, JsonParsingError}
+import quiz.Utils.{BadRequestError, StatusCodeError}
 import quiz.{Request, Utils}
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Try
 
 object UserService {
+
+  def decodeErrors(request: XMLHttpRequest): NonEmptyList[Error] = {
+    decode[Errors](request.responseText).map(_.errors).valueOr {
+      e => NonEmptyList.of(JsonParsingError)
+    }
+  }
 
   def credentialsToBase64(email: String, pass: String): String = {
     val bytes = (email + ":" + pass).getBytes(StandardCharsets.UTF_8)
@@ -29,8 +36,12 @@ object UserService {
 
   implicit val executionContext = ExecutionContext.global
 
-  def register(user: User): EitherT[Future, StatusCodeError, XMLHttpRequest] = {
+  def register(user: User): EitherT[Future, Exception, UserInfo] = {
     Request.post("/users", user.asJson)
+      .subflatMap(req => decode[UserInfo](req.responseText))
+      .leftMap {
+        case BadRequestError(req) => decodeErrors(req).val
+      }.for
   }
 
   def login(credentials: UserCredentials): EitherT[Future, Exception, UserInfo] = {

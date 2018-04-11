@@ -62,7 +62,10 @@ lazy val js = (project in file("js")).settings(
 ).enablePlugins(ScalaJSPlugin).dependsOn(sharedJS).disablePlugins(RevolverPlugin)
 
 lazy val shared = (crossProject.crossType(CrossType.Pure) in file("shared")).settings(
-  scalaVersion := scalaV
+  scalaVersion := scalaV,
+  libraryDependencies ++= Seq(
+    "org.typelevel" %% "cats-core" % "1.0.1"
+  )
 )
 
 lazy val sharedJVM = shared.jvm.disablePlugins(RevolverPlugin)
