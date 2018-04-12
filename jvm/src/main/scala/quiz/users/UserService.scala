@@ -12,7 +12,7 @@ import cats.instances.future._
 import doobie._
 import quiz.{Db, Session, Utils}
 import quiz.Domain._
-import quiz.Errors.{EmailAlreadyExists, Error, Errors, UnspecifiedError}
+import quiz.Errors.{EmailAlreadyExists, ApiError, Errors, UnspecifiedError}
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.concurrent.ExecutionContext.Implicits.global

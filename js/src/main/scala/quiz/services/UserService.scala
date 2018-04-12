@@ -13,7 +13,7 @@ import cats.implicits._
 import cats.data._
 import cats.implicits._
 import org.scalajs.dom.raw.XMLHttpRequest
-import quiz.Errors.{Error, Errors, JsonParsingError}
+import quiz.Errors.{ApiError, Errors, JsonParsingError}
 import quiz.Utils.{BadRequestError, StatusCodeError}
 import quiz.{Request, Utils}
 
@@ -22,7 +22,7 @@ import scala.util.Try
 
 object UserService {
 
-  def decodeErrors(request: XMLHttpRequest): NonEmptyList[Error] = {
+  def decodeErrors(request: XMLHttpRequest): NonEmptyList[ApiError] = {
     decode[Errors](request.responseText).map(_.errors).valueOr {
       e => NonEmptyList.of(JsonParsingError)
     }

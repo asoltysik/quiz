@@ -8,7 +8,7 @@ import org.scalajs.dom.raw.{MouseEvent, Node}
 import org.scalajs.dom.window.location
 import quiz.Domain.UserInfo
 import quiz.services.UserService
-import quiz.ui.{Home, Login, QuizModal}
+import quiz.ui.{Home, Login, QuizModal, Register}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
@@ -33,6 +33,7 @@ object Main extends {
 
   val parts = Seq(
     Login,
+    Register,
     defaultPart
   )
 
@@ -63,7 +64,7 @@ object Main extends {
   @dom def header: Binding[Node] = {
     Model.user.bind match {
       case Some(user) => headerLogged.bind
-      case None => <a class="btn" href={Login.link}>Login</a>
+      case None => headerUnlogged.bind
     }
   }
 
@@ -78,6 +79,13 @@ object Main extends {
     <div>
       <a class="btn btn-success">Profile</a>
       <a class="btn btn-primary" onclick={logoutClick}>Logout</a>
+    </div>
+  }
+
+  @dom def headerUnlogged: Binding[Node] = {
+    <div>
+      <a class="btn" href={Login.link}>Login</a>
+      <a class="btn" href={Register.link}>Register</a>
     </div>
   }
 

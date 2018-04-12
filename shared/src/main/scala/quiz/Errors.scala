@@ -1,20 +1,30 @@
 package quiz
 
 import cats.data.NonEmptyList
-import quiz.Errors.Error
+import quiz.Errors.ApiError
 
 object Errors {
 
-  case class Errors(errors: NonEmptyList[Error])
+  case class Errors(errors: NonEmptyList[ApiError])
 
-  sealed trait Error extends Throwable
+  sealed trait ApiError extends Throwable {
+    override def toString: String = "Unexpected error happened"
+  }
 
-  sealed trait RegistrationError extends Error
-  case object WrongEmailFormat extends RegistrationError
-  case class WrongNameCharacters(wrongCharacters: List[Char]) extends RegistrationError
-  case class WrongPasswordLength(is: Int, min: Int, max: Int) extends RegistrationError
-  case object EmailAlreadyExists extends RegistrationError
+  sealed trait RegistrationError extends ApiError
+  case object WrongEmailFormat extends RegistrationError {
+    override def toString: String = "Wrong email format"
+  }
+  case class WrongNameCharacters(wrongCharacters: List[Char]) extends RegistrationError {
+    override def toString: String = s"Invalid characters in name: ${wrongCharacters mkString ", "}"
+  }
+  case class WrongPasswordLength(is: Int, min: Int, max: Int) extends RegistrationError {
+    override def toString: String = s"Password length should be between $min and $max characters"
+  }
+  case object EmailAlreadyExists extends RegistrationError {
+    override def toString: String = "Provided email already exists"
+  }
 
-  case object UnspecifiedError extends Error
-  case object JsonParsingError extends Error
+  case object UnspecifiedError extends ApiError
+  case object JsonParsingError extends ApiError
 }

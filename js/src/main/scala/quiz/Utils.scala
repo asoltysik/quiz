@@ -4,7 +4,7 @@ import cats.data.{EitherT, NonEmptyList}
 import io.circe.Json
 import org.scalajs.dom.ext.{Ajax, AjaxException}
 import org.scalajs.dom.raw.XMLHttpRequest
-import quiz.Errors.Error
+import quiz.Errors.ApiError
 import quiz.Utils.StatusCodeError
 
 import scala.concurrent.Future
