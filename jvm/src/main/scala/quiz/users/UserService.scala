@@ -25,11 +25,18 @@ object UserService extends Directives {
 
   implicit def exceptionHandler: ExceptionHandler = ExceptionHandler {
     case EmailAlreadyExists =>
-      complete(StatusCodes.BadRequest, Errors(NonEmptyList.of(EmailAlreadyExists)))
+      complete(
+        StatusCodes.BadRequest,
+        Errors(NonEmptyList.of(EmailAlreadyExists))
+      )
     case _ =>
-      complete(StatusCodes.InternalServerError, Errors(NonEmptyList.of(UnspecifiedError)))
+      complete(
+        StatusCodes.InternalServerError,
+        Errors(NonEmptyList.of(UnspecifiedError))
+      )
   }
 
+  // @formatter:off
   val route =
     post {
       entity(as[User]) { user =>
@@ -51,6 +58,6 @@ object UserService extends Directives {
         }
       }
     }
-
+  // @formatter:on
 
 }

@@ -22,13 +22,20 @@ object Register extends SitePart {
 
   @dom def render: Binding[Node] = {
     val keyDownHandler = { event: MouseEvent =>
-      val email = document.getElementById("inputEmailRegister")
-        .asInstanceOf[html.Input].value
-      val password = document.getElementById("inputPasswordRegister")
-        .asInstanceOf[html.Input].value
-      val name = document.getElementById("inputNameRegister")
-        .asInstanceOf[html.Input].value
-      UserService.register(User(None, email, name, password))
+      val email = document
+        .getElementById("inputEmailRegister")
+        .asInstanceOf[html.Input]
+        .value
+      val password = document
+        .getElementById("inputPasswordRegister")
+        .asInstanceOf[html.Input]
+        .value
+      val name = document
+        .getElementById("inputNameRegister")
+        .asInstanceOf[html.Input]
+        .value
+      UserService
+        .register(User(None, email, name, password))
         .map { userInfo =>
           Main.Model.user.value = Some(userInfo)
           Main.route.state.value = Home

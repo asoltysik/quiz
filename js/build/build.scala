@@ -1,14 +1,13 @@
 import cbt._
-class Build(val context: Context) extends ScalaJsBuild{
+class Build(val context: Context) extends ScalaJsBuild {
   override def name = "quiz"
 
-  override def sources = super.sources ++ Seq(
-    projectDirectory.getParentFile ++ "/shared"
-  )
+  override def sources =
+    super.sources ++ Seq(projectDirectory.getParentFile ++ "/shared")
 
   override def dependencies = (
     super.dependencies ++
-      Resolver( mavenCentral ).bind(
+      Resolver(mavenCentral).bind(
         "com.thoughtworks.binding" %%% "dom" % "latest.release"
       )
   )

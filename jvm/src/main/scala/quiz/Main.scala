@@ -20,6 +20,7 @@ object Main extends App {
   implicit val materializer = ActorMaterializer()
   implicit val executionContext = system.dispatcher
 
+  // @formatter:off
   val route =
     path("ws-echo") {
       get {
@@ -42,13 +43,12 @@ object Main extends App {
       getFromResource("quiz-fastopt.js")
     } ~
     getFromResourceDirectory("")
+  // @formatter:on
 
   val bindingFuture = Http().bindAndHandle(route, "localhost", 8080)
 
   println("Server is running on localhost:8080, type stop to stop.")
-  while(StdIn.readLine() != "stop") {
-
-  }
+  while (StdIn.readLine() != "stop") {}
   bindingFuture
     .flatMap(_.unbind())
     .onComplete(_ => system.terminate())

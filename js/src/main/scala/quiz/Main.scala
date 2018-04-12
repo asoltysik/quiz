@@ -25,25 +25,22 @@ object Main extends {
 
   def isLogged: Boolean = Model.user.value.isDefined
 
-  UserService.checkSession().map(userInfo => {
-    Model.user.value = Some(userInfo)
-  })
+  UserService
+    .checkSession()
+    .map(userInfo => {
+      Model.user.value = Some(userInfo)
+    })
 
   val defaultPart = Home
 
-  val parts = Seq(
-    Login,
-    Register,
-    defaultPart
-  )
+  val parts = Seq(Login, Register, defaultPart)
 
-  val route: Route.Hash[SitePart] = Route.Hash[SitePart](defaultPart)(
-    new Route.Format[SitePart] {
+  val route: Route.Hash[SitePart] =
+    Route.Hash[SitePart](defaultPart)(new Route.Format[SitePart] {
       override def unapply(hashText: String): Option[SitePart] =
         Some(parts.find(_.link == hashText).getOrElse(defaultPart))
       override def apply(state: SitePart): String = state.link
-    }
-  )
+    })
 
   val part: Var[SitePart] = route.state
 
@@ -70,7 +67,8 @@ object Main extends {
 
   @dom def headerLogged: Binding[Node] = {
     val logoutClick = { event: MouseEvent =>
-      UserService.logout()
+      UserService
+        .logout()
         .map(req => {
           location.reload(false)
         })

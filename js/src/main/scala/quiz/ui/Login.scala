@@ -16,9 +16,12 @@ object Login extends SitePart {
   @dom def render: Binding[Node] = {
 
     val keyDownHandler = { event: MouseEvent =>
-      val email = document.getElementById("inputEmail").asInstanceOf[html.Input].value
-      val password = document.getElementById("inputPassword").asInstanceOf[html.Input].value
-      UserService.login(UserCredentials(email, password))
+      val email =
+        document.getElementById("inputEmail").asInstanceOf[html.Input].value
+      val password =
+        document.getElementById("inputPassword").asInstanceOf[html.Input].value
+      UserService
+        .login(UserCredentials(email, password))
         .map(userInfo => {
           Main.Model.user.value = Some(userInfo)
           Main.route.state.value = Home

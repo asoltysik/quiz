@@ -4,7 +4,12 @@ import cats.data.{Validated, ValidatedNel}
 import cats.data.Validated._
 import cats.implicits._
 import quiz.Domain.User
-import quiz.Errors.{RegistrationError, WrongEmailFormat, WrongNameCharacters, WrongPasswordLength}
+import quiz.Errors.{
+  RegistrationError,
+  WrongEmailFormat,
+  WrongNameCharacters,
+  WrongPasswordLength
+}
 
 object UserValidation {
 
@@ -26,17 +31,19 @@ object UserValidation {
   }
 
   private def validatePassword(password: String): ValidationResult[String] = {
-    if(6 to 50 contains password.length)
+    if (6 to 50 contains password.length)
       password.validNel
     else
       WrongPasswordLength(password.length, 6, 50).invalidNel
   }
 
   def validate(user: User): ValidationResult[User] = {
-    (Valid(user.id),
-    validateEmail(user.email),
-    validateName(user.name),
-    validatePassword(user.password)).mapN(User)
+    (
+      Valid(user.id),
+      validateEmail(user.email),
+      validateName(user.name),
+      validatePassword(user.password)
+    ).mapN(User)
   }
 
 }

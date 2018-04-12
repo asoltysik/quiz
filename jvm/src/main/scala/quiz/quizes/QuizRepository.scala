@@ -13,8 +13,10 @@ object QuizRepository {
 
   // this is a workaround for not being able to exclude fields from compositing in doobie
   // a little bit ugly but saves a lot of complexity in queries
-  implicit val dummyListAnswer: Composite[List[Answer]] = Composite.unitComposite.imap(x => List.empty[Answer])(x => {})
-  implicit val dummyListQuestion: Composite[List[Question]] = Composite.unitComposite.imap(x => List.empty[Question])(x => {})
+  implicit val dummyListAnswer: Composite[List[Answer]] =
+    Composite.unitComposite.imap(x => List.empty[Answer])(x => {})
+  implicit val dummyListQuestion: Composite[List[Question]] =
+    Composite.unitComposite.imap(x => List.empty[Question])(x => {})
 
   def getExpandedQuiz(id: Int): IO[Option[Quiz[UserId]]] = {
     sql"""select
@@ -29,8 +31,8 @@ object QuizRepository {
       .map(_.mapValues(_.foldMap(e => Map(e._1 -> List(e._2)))))
       // convert the map into the hierarchical structure of Quiz
       .map(_.mapValues(_.map {
-      case (question, answers) => question.copy(answers = answers)
-    }))
+        case (question, answers) => question.copy(answers = answers)
+      }))
       .map(_.map {
         case (quiz, questions) => quiz.copy(questions = questions.toList)
       })
@@ -53,13 +55,13 @@ object QuizRepository {
   }
 
   def addQuiz(quiz: Quiz[UserId]): IO[Quiz[UserId]] = {
-    sql"insert into quizes (name, created_by, duration) values (${quiz.name}, ${quiz.createdBy}, ${quiz.duration})"
-      .update
+    sql"insert into quizes (name, created_by, duration) values (${quiz.name}, ${quiz.createdBy}, ${quiz.duration})".update
       .withUniqueGeneratedKeys[Quiz[UserId]]("id", "name", "created_by")
       .transact(Db.xa)
   }
 
-  def getQuestionsForQuiz(quizId: Int, withAnswers: Boolean): IO[List[Question]] = {
+  def getQuestionsForQuiz(quizId: Int,
+                          withAnswers: Boolean): IO[List[Question]] = {
     // TODO: withAnswers
     sql"select id, question, question_no from questions where quiz_id = $quizId"
       .query[Question]
@@ -68,10 +70,11 @@ object QuizRepository {
   }
 
   def addQuestions(quizId: Int, questions: List[Question]): IO[Int] = {
-    val sql = "insert into questions (quiz_id, question, question_no) values (?, ?, ?)"
-    Update[(Int, Question)](sql).updateMany(
-      questions.map(question => (quizId, question))
-    ).transact(Db.xa)
+    val sql =
+      "insert into questions (quiz_id, question, question_no) values (?, ?, ?)"
+    Update[(Int, Question)](sql)
+      .updateMany(questions.map(question => (quizId, question)))
+      .transact(Db.xa)
   }
 
 }

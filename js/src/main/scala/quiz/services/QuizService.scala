@@ -15,7 +15,9 @@ import scala.concurrent.ExecutionContext.Implicits.global
 object QuizService {
 
   def getAllQuizes(): EitherT[Future, Exception, List[Quiz[UserId]]] = {
-      Request.get("/quizes").subflatMap(req => decode[List[Quiz[UserId]]](req.responseText))
+    Request
+      .get("/quizes")
+      .subflatMap(req => decode[List[Quiz[UserId]]](req.responseText))
   }
 
 }

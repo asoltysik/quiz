@@ -27,7 +27,8 @@ object Home extends SitePart {
   object Model {
 
     def refreshQuizes() = {
-      QuizService.getAllQuizes()
+      QuizService
+        .getAllQuizes()
         .map(quizList => {
           quizes.value.clear()
           quizes.value ++= quizList
@@ -38,11 +39,11 @@ object Home extends SitePart {
     val quizes = Vars[Quiz[UserId]]()
   }
 
-
   @dom private def quizDescription(quiz: Quiz[UserId]): Binding[Node] = {
     val openRunner = { event: MouseEvent =>
       QuizModal.Model.quiz.value = Some(quiz)
-      document.getElementById("quizModal")
+      document
+        .getElementById("quizModal")
         .asInstanceOf[BootstrapModal]
         .modal("show")
     }
@@ -68,7 +69,7 @@ object Home extends SitePart {
   }
 
   @dom private def loggedView: Binding[Node] = {
-    if(Model.quizes.bind.isEmpty) {
+    if (Model.quizes.bind.isEmpty) {
       Model.refreshQuizes()
     }
     renderQuizes.bind
@@ -82,7 +83,7 @@ object Home extends SitePart {
   }
 
   @dom def render: Binding[Node] = {
-    if(Main.Model.user.bind.isDefined) {
+    if (Main.Model.user.bind.isDefined) {
       loggedView.bind
     } else {
       unloggedView.bind

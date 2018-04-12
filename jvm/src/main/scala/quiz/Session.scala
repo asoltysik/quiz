@@ -4,14 +4,16 @@ import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.server.Directives
 import com.softwaremill.session._
 import com.softwaremill.session.SessionDirectives._
-import com.softwaremill.session.CsrfDirectives.{randomTokenCsrfProtection, setNewCsrfToken}
+import com.softwaremill.session.CsrfDirectives.{
+  randomTokenCsrfProtection,
+  setNewCsrfToken
+}
 import com.softwaremill.session.CsrfOptions.checkHeader
 import org.mindrot.jbcrypt.BCrypt
 import quiz.Domain.{UserCredentials, UserId}
 import quiz.users.UserRepository
 
 import scala.util.Try
-
 
 object Session extends Directives {
   import de.heikoseeberger.akkahttpcirce.FailFastCirceSupport._
@@ -20,22 +22,29 @@ object Session extends Directives {
   case class ClientSession(id: UserId)
 
   object ClientSession {
-    implicit def serializer: SessionSerializer[ClientSession, String] = new SingleValueSessionSerializer(
-      _.id,
-      (un: UserId) => Try {
-        ClientSession(un)
-      }
-    )
+    implicit def serializer: SessionSerializer[ClientSession, String] =
+      new SingleValueSessionSerializer(
+        _.id,
+        (un: UserId) =>
+          Try {
+            ClientSession(un)
+        }
+      )
   }
 
-  val sessionConfig = SessionConfig.default("a very secret and seucure server secretasddddddddddddddddddddddddddddddddddddddddddddsadsadsadsaaaaaaaaaaa")
-  implicit val sessionManager = new SessionManager[ClientSession](sessionConfig)
+  val sessionConfig = SessionConfig.default(
+    "a very secret and seucure server secretasddddddddddddddddddddddddddddddddddddddddddddsadsadsadsaaaaaaaaaaa"
+  )
+  implicit val sessionManager =
+    new SessionManager[ClientSession](sessionConfig)
 
-  val requireSession = requiredSession(SessionOptions.oneOff, SessionOptions.usingCookies)
+  val requireSession =
+    requiredSession(SessionOptions.oneOff, SessionOptions.usingCookies)
 
   def setClientSession(session: ClientSession) =
     setSession(SessionOptions.oneOff, SessionOptions.usingCookies, session)
 
+  // @formatter:off
   val routes =
     //randomTokenCsrfProtection(checkHeader) {
       path("doLogin") {
@@ -69,5 +78,6 @@ object Session extends Directives {
         }
       }
     //}
+  // @formatter:on
 
 }

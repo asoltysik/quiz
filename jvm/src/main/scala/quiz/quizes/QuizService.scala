@@ -1,17 +1,9 @@
 package quiz.quizes
 
 import akka.http.scaladsl.server.Directives
-import doobie._
-import doobie.implicits._
-import doobie.postgres.implicits._
-import doobie.postgres._
-import cats.implicits._
 import io.circe.generic.extras.Configuration
 import quiz.{Db, Session}
 import quiz.Domain._
-import shapeless._
-
-
 
 object QuizService extends Directives {
   import de.heikoseeberger.akkahttpcirce.FailFastCirceSupport._
@@ -19,6 +11,7 @@ object QuizService extends Directives {
 
   implicit val circeConfig: Configuration = Configuration.default.withDefaults
 
+  // @formatter:off
   val route =
     Session.requireSession { session =>
       pathPrefix("quizes") {
@@ -53,6 +46,6 @@ object QuizService extends Directives {
         }
       }
     }
-
+  // @formatter:on
 
 }

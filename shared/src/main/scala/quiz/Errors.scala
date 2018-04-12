@@ -15,11 +15,15 @@ object Errors {
   case object WrongEmailFormat extends RegistrationError {
     override def toString: String = "Wrong email format"
   }
-  case class WrongNameCharacters(wrongCharacters: List[Char]) extends RegistrationError {
-    override def toString: String = s"Invalid characters in name: ${wrongCharacters mkString ", "}"
+  case class WrongNameCharacters(wrongCharacters: List[Char])
+      extends RegistrationError {
+    override def toString: String =
+      s"Invalid characters in name: ${wrongCharacters mkString ", "}"
   }
-  case class WrongPasswordLength(is: Int, min: Int, max: Int) extends RegistrationError {
-    override def toString: String = s"Password length should be between $min and $max characters"
+  case class WrongPasswordLength(is: Int, min: Int, max: Int)
+      extends RegistrationError {
+    override def toString: String =
+      s"Password length should be between $min and $max characters"
   }
   case object EmailAlreadyExists extends RegistrationError {
     override def toString: String = "Provided email already exists"

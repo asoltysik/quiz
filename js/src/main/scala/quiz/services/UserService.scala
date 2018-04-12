@@ -23,8 +23,8 @@ import scala.util.Try
 object UserService {
 
   def decodeErrors(request: XMLHttpRequest): NonEmptyList[ApiError] = {
-    decode[Errors](request.responseText).map(_.errors).valueOr {
-      e => NonEmptyList.of(JsonParsingError)
+    decode[Errors](request.responseText).map(_.errors).valueOr { e =>
+      NonEmptyList.of(JsonParsingError)
     }
   }
 
@@ -36,17 +36,21 @@ object UserService {
   implicit val executionContext = ExecutionContext.global
 
   def register(user: User): EitherT[Future, Exception, UserInfo] = {
-    Request.post("/users", user.asJson)
+    Request
+      .post("/users", user.asJson)
       .subflatMap(req => decode[UserInfo](req.responseText))
   }
 
-  def login(credentials: UserCredentials): EitherT[Future, Exception, UserInfo] = {
-    Request.post("/session/doLogin", credentials.asJson)
+  def login(
+      credentials: UserCredentials): EitherT[Future, Exception, UserInfo] = {
+    Request
+      .post("/session/doLogin", credentials.asJson)
       .subflatMap(req => decode[UserInfo](req.responseText))
   }
 
   def checkSession(): EitherT[Future, Exception, UserInfo] = {
-    Request.get("/session/doCheckSession")
+    Request
+      .get("/session/doCheckSession")
       .subflatMap(req => decode[UserInfo](req.responseText))
   }
 
