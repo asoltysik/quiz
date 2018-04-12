@@ -23,38 +23,40 @@ object UserService extends Directives {
 
   // TODO: use blocking dispatcher
 
-  implicit def exceptionHandler: ExceptionHandler = ExceptionHandler {
-    case EmailAlreadyExists =>
+  private val exceptionHandler = ExceptionHandler {
+    case _: EmailAlreadyExists =>
       complete(
         StatusCodes.BadRequest,
-        Errors(NonEmptyList.of(EmailAlreadyExists))
+        Errors(NonEmptyList.of(EmailAlreadyExists()))
       )
     case _ =>
       complete(
         StatusCodes.InternalServerError,
-        Errors(NonEmptyList.of(UnspecifiedError))
+        Errors(NonEmptyList.of(UnspecifiedError()))
       )
   }
 
   // @formatter:off
   val route =
-    post {
-      entity(as[User]) { user =>
-        UserValidation.validate(user) match {
-          case Valid(validatedUser) =>
-            onSuccess(UserRepository.addUser(validatedUser).unsafeToFuture()) { userInfo =>
+    handleExceptions(exceptionHandler) {
+      post {
+        entity(as[User]) { user =>
+          UserValidation.validate(user) match {
+            case Valid(validatedUser) =>
+              onSuccess(UserRepository.addUser(validatedUser).unsafeToFuture()) { userInfo =>
                 Session.setClientSession(Session.ClientSession(userInfo.id.get)) {
                   complete(userInfo)
                 }
-            }
-          case Invalid(errors) => complete(StatusCodes.BadRequest, Errors(errors))
+              }
+            case Invalid(errors) => complete(StatusCodes.BadRequest, Errors(errors))
+          }
         }
-      }
-    } ~
-    Session.requireSession { session =>
-      pathPrefix(IntNumber) { id =>
-        get {
-          complete(UserRepository.getUserInfo(id).unsafeToFuture())
+      } ~
+      Session.requireSession { session =>
+        pathPrefix(IntNumber) { id =>
+          get {
+            complete(UserRepository.getUserInfo(id).unsafeToFuture())
+          }
         }
       }
     }

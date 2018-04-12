@@ -24,7 +24,7 @@ object UserService {
 
   def decodeErrors(request: XMLHttpRequest): NonEmptyList[ApiError] = {
     decode[Errors](request.responseText).map(_.errors).valueOr { e =>
-      NonEmptyList.of(JsonParsingError)
+      NonEmptyList.of(JsonParsingError())
     }
   }
 

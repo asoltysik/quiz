@@ -12,7 +12,7 @@ object Errors {
   }
 
   sealed trait RegistrationError extends ApiError
-  case object WrongEmailFormat extends RegistrationError {
+  case class WrongEmailFormat() extends RegistrationError {
     override def toString: String = "Wrong email format"
   }
   case class WrongNameCharacters(wrongCharacters: List[Char])
@@ -25,10 +25,10 @@ object Errors {
     override def toString: String =
       s"Password length should be between $min and $max characters"
   }
-  case object EmailAlreadyExists extends RegistrationError {
+  case class EmailAlreadyExists() extends RegistrationError {
     override def toString: String = "Provided email already exists"
   }
 
-  case object UnspecifiedError extends ApiError
-  case object JsonParsingError extends ApiError
+  case class UnspecifiedError() extends ApiError
+  case class JsonParsingError() extends ApiError
 }

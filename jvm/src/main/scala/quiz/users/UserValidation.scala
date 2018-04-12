@@ -19,13 +19,13 @@ object UserValidation {
     // simple validation just for user convenience, should be email confirmation in the future
     """(\w+)@([\w\.]+)""".r.findFirstIn(email) match {
       case Some(validEmail) => email.validNel
-      case None => WrongEmailFormat.invalidNel
+      case None             => WrongEmailFormat().invalidNel
     }
   }
 
   private def validateName(name: String): ValidationResult[String] = {
     """[^\p{L} ]+""".r.findAllIn(name).toList match {
-      case Nil => name.validNel
+      case Nil  => name.validNel
       case list => WrongNameCharacters(list.flatten.distinct).invalidNel
     }
   }

@@ -15,8 +15,8 @@ object UserRepository {
     sql"insert into users (email, name, hashed_password) values (${user.email}, ${user.name}, $hash)".update
       .withUniqueGeneratedKeys[UserInfo]("id", "email", "name")
       .exceptSqlState {
-        case sqlstate.class23.UNIQUE_VIOLATION => throw EmailAlreadyExists
-        case _ => throw UnspecifiedError
+        case sqlstate.class23.UNIQUE_VIOLATION => throw EmailAlreadyExists()
+        case _                                 => throw UnspecifiedError()
       }
       .transact(Db.xa)
   }
