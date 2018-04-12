@@ -21,7 +21,6 @@ object Main extends {
 
   object Model {
     val user = Var[Option[UserInfo]](None)
-    List(1, 2, 3).all
   }
 
   def isLogged: Boolean = Model.user.value.isDefined

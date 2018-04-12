@@ -5,7 +5,6 @@ import java.nio.charset.StandardCharsets
 import java.util.Base64
 
 import quiz.Domain.{User, UserCredentials, UserInfo}
-import io.circe.Error
 import io.circe.syntax._
 import io.circe.parser.decode
 import io.circe.generic.auto._
@@ -39,9 +38,6 @@ object UserService {
   def register(user: User): EitherT[Future, Exception, UserInfo] = {
     Request.post("/users", user.asJson)
       .subflatMap(req => decode[UserInfo](req.responseText))
-      .leftMap {
-        case BadRequestError(req) => decodeErrors(req).val
-      }.for
   }
 
   def login(credentials: UserCredentials): EitherT[Future, Exception, UserInfo] = {

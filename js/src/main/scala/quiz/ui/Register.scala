@@ -1,6 +1,7 @@
 package quiz.ui
 
-import com.thoughtworks.binding.Binding
+import com.thoughtworks.binding.{Binding, dom}
+import cats.instances.future._
 import org.scalajs.dom.{document, html}
 import org.scalajs.dom.raw.{MouseEvent, Node}
 import quiz.Domain.User
@@ -8,10 +9,12 @@ import quiz.Utils.BadRequestError
 import quiz.{Main, SitePart}
 import quiz.services.UserService
 
+import scala.concurrent.ExecutionContext.Implicits.global
+
 object Register extends SitePart {
   def link: String = "#register"
 
-  def render: Binding[Node] = {
+  @dom def render: Binding[Node] = {
     val keyDownHandler = { event: MouseEvent =>
       val email = document.getElementById("inputEmailRegister")
         .asInstanceOf[html.Input].value

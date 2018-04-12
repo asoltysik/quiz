@@ -1,5 +1,6 @@
 package quiz.users
 
+import akka.http.scaladsl.server.ExceptionHandler
 import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.server.Directives
 import akka.http.scaladsl.server.directives.Credentials
@@ -9,12 +10,9 @@ import cats.effect.IO
 import cats.syntax._
 import cats.instances.future._
 import doobie._
-import doobie.implicits._
-import doobie.postgres._
-import org.mindrot.jbcrypt.BCrypt
 import quiz.{Db, Session, Utils}
 import quiz.Domain._
-import quiz.Errors.{EmailAlreadyExists, Errors, Error, UnspecifiedError}
+import quiz.Errors.{EmailAlreadyExists, Error, Errors, UnspecifiedError}
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -25,15 +23,19 @@ object UserService extends Directives {
 
   // TODO: use blocking dispatcher
 
+  implicit def exceptionHandler: ExceptionHandler = ExceptionHandler {
+    case EmailAlreadyExists =>
+      complete(StatusCodes.BadRequest, Errors(NonEmptyList.of(EmailAlreadyExists)))
+    case _ =>
+      complete(StatusCodes.InternalServerError, Errors(NonEmptyList.of(UnspecifiedError)))
+  }
 
   val route =
     post {
       entity(as[User]) { user =>
         UserValidation.validate(user) match {
           case Valid(validatedUser) =>
-            onSuccess(addUser(validatedUser).unsafeToFuture()) {
-              case Left(error) => complete(StatusCodes.BadRequest, Errors(NonEmptyList.of(error)))
-              case Right(userInfo) =>
+            onSuccess(UserRepository.addUser(validatedUser).unsafeToFuture()) { userInfo =>
                 Session.setClientSession(Session.ClientSession(userInfo.id.get)) {
                   complete(userInfo)
                 }
@@ -45,35 +47,10 @@ object UserService extends Directives {
     Session.requireSession { session =>
       pathPrefix(IntNumber) { id =>
         get {
-          complete(getUserInfo(id).unsafeToFuture())
+          complete(UserRepository.getUserInfo(id).unsafeToFuture())
         }
       }
     }
 
-  def addUser(user: User): IO[Either[Error, UserInfo]] = {
-    val hash = BCrypt.hashpw(user.password, BCrypt.gensalt())
-    sql"insert into users (email, name, hashed_password) values (${user.email}, ${user.name}, $hash)"
-      .update
-      .withUniqueGeneratedKeys[UserInfo]("id", "email", "name")
-      .attemptSomeSqlState {
-        case sqlstate.class23.UNIQUE_VIOLATION => EmailAlreadyExists
-        case _ => UnspecifiedError
-      }
-      .transact(Db.xa)
-  }
-
-  def getUserInfo(id: Int): IO[Option[UserInfo]] = {
-    sql"select id, email, name from users where id = $id"
-      .query[UserInfo]
-      .option
-      .transact(Db.xa)
-  }
-
-  def getUserInfoAndHash(email: String): IO[Option[(UserInfo, String)]]= {
-    sql"select id, email, name, hashed_password from users where email = $email"
-      .query[(UserInfo, String)]
-      .option
-      .transact(Db.xa)
-  }
 
 }

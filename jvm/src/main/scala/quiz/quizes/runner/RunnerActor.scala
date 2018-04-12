@@ -2,11 +2,9 @@ package quiz.quizes.runner
 
 import java.time.LocalDateTime
 
-import akka.actor.{Actor, ActorRef, FSM}
-import doobie.implicits._
-import quiz.Db
+import akka.actor.Actor
 import quiz.Domain._
-import quiz.quizes.QuizService
+import quiz.quizes.QuizRepository
 import quiz.Domain.UserId
 
 case class Uninitialized()
@@ -17,7 +15,7 @@ class QuizActor extends Actor {
 
   def active(quizState: Uninitialized, answeredMap: Map[Question, (String, Boolean)]): Receive = {
     case Starting(userId, quizId) =>
-      val quizOpt = QuizService.getExpandedQuiz(quizId).transact(Db.xa).unsafeRunSync()
+      val quizOpt = QuizRepository.getExpandedQuiz(quizId).unsafeRunSync()
       val quiz = quizOpt.getOrElse {
         throw new IllegalArgumentException("No quiz exists with this id")
       }

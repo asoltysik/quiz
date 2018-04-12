@@ -8,7 +8,7 @@ import com.softwaremill.session.CsrfDirectives.{randomTokenCsrfProtection, setNe
 import com.softwaremill.session.CsrfOptions.checkHeader
 import org.mindrot.jbcrypt.BCrypt
 import quiz.Domain.{UserCredentials, UserId}
-import quiz.users.UserService
+import quiz.users.UserRepository
 
 import scala.util.Try
 
@@ -41,7 +41,7 @@ object Session extends Directives {
       path("doLogin") {
         post {
           entity(as[UserCredentials]) { credentials =>
-            onSuccess(UserService.getUserInfoAndHash(credentials.email).unsafeToFuture()) {
+            onSuccess(UserRepository.getUserInfoAndHash(credentials.email).unsafeToFuture()) {
               case Some((info, hash)) if BCrypt.checkpw(credentials.password, hash) =>
                 setClientSession(ClientSession(info.id.get)) {
                   complete(info)
@@ -53,7 +53,7 @@ object Session extends Directives {
       } ~
       path("doCheckSession") {
         requireSession { session =>
-          onSuccess(UserService.getUserInfo(session.id).unsafeToFuture()) {
+          onSuccess(UserRepository.getUserInfo(session.id).unsafeToFuture()) {
             case Some(userInfo) => complete(userInfo)
             case None => complete(StatusCodes.NotFound)
           }

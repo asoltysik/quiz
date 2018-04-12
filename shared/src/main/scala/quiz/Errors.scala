@@ -7,7 +7,7 @@ object Errors {
 
   case class Errors(errors: NonEmptyList[Error])
 
-  sealed trait Error
+  sealed trait Error extends Throwable
 
   sealed trait RegistrationError extends Error
   case object WrongEmailFormat extends RegistrationError
