@@ -1,6 +1,6 @@
 package quiz.users
 
-import cats.data.{Validated, ValidatedNel}
+import cats.data.ValidatedNel
 import cats.data.Validated._
 import cats.implicits._
 import quiz.Domain.User

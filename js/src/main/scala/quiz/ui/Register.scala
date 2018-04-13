@@ -6,7 +6,7 @@ import com.thoughtworks.binding.Binding.Vars
 import org.scalajs.dom.{document, html}
 import org.scalajs.dom.raw.{MouseEvent, Node}
 import quiz.Domain.User
-import quiz.Errors.{ApiError, RegistrationError}
+import quiz.Errors.ApiError
 import quiz.Utils.BadRequestError
 import quiz.{Main, SitePart}
 import quiz.services.UserService

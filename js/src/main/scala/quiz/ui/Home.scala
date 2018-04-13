@@ -1,15 +1,13 @@
 package quiz.ui
 
 import cats.implicits._
-import cats._
-import cats.data._
 import com.thoughtworks.binding.Binding.{Var, Vars}
 import com.thoughtworks.binding.{Binding, dom}
 import org.scalajs.dom.raw.{MouseEvent, Node}
 import org.scalajs.dom.document
 import quiz.Domain.{Quiz, UserId}
 import quiz.{Main, SitePart}
-import quiz.services.{QuizService, UserService}
+import quiz.services.QuizService
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.scalajs.js

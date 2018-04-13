@@ -3,11 +3,7 @@ package quiz
 import akka.actor.ActorSystem
 import akka.http.scaladsl.Http
 import akka.stream.ActorMaterializer
-import com.softwaremill.session.SessionDirectives.requiredSession
-import akka.http.scaladsl.model._
 import akka.http.scaladsl.server.Directives._
-import com.softwaremill.session.SessionOptions
-import io.circe.generic.extras.Configuration
 import quiz.quizes.QuizService
 import quiz.quizes.runner.WebSocket
 import quiz.users.UserService
@@ -28,7 +24,9 @@ object Main extends App {
       }
     } ~
     rejectEmptyResponse {
-      QuizService.route ~
+      pathPrefix("quizes") {
+        QuizService.route
+      } ~
       pathPrefix("users") {
         UserService.route
       }

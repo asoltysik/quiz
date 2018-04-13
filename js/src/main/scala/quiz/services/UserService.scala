@@ -1,6 +1,5 @@
 package quiz.services
 
-import java.nio.ByteBuffer
 import java.nio.charset.StandardCharsets
 import java.util.Base64
 
@@ -8,17 +7,14 @@ import quiz.Domain.{User, UserCredentials, UserInfo}
 import io.circe.syntax._
 import io.circe.parser.decode
 import io.circe.generic.auto._
-import org.scalajs.dom.ext.{Ajax, AjaxException}
-import cats.implicits._
 import cats.data._
 import cats.implicits._
 import org.scalajs.dom.raw.XMLHttpRequest
 import quiz.Errors.{ApiError, Errors, JsonParsingError}
-import quiz.Utils.{BadRequestError, StatusCodeError}
-import quiz.{Request, Utils}
+import quiz.Utils.StatusCodeError
+import quiz.Request
 
 import scala.concurrent.{ExecutionContext, Future}
-import scala.util.Try
 
 object UserService {
 

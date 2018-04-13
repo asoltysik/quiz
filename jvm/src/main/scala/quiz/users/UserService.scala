@@ -3,19 +3,11 @@ package quiz.users
 import akka.http.scaladsl.server.ExceptionHandler
 import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.server.Directives
-import akka.http.scaladsl.server.directives.Credentials
 import cats.data._
 import cats.data.Validated.{Invalid, Valid}
-import cats.effect.IO
-import cats.syntax._
-import cats.instances.future._
-import doobie._
-import quiz.{Db, Session, Utils}
+import quiz.Session
 import quiz.Domain._
-import quiz.Errors.{EmailAlreadyExists, ApiError, Errors, UnspecifiedError}
-
-import scala.concurrent.{ExecutionContext, Future}
-import scala.concurrent.ExecutionContext.Implicits.global
+import quiz.Errors.{EmailAlreadyExists, Errors, UnspecifiedError}
 
 object UserService extends Directives {
   import de.heikoseeberger.akkahttpcirce.FailFastCirceSupport._
