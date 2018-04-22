@@ -15,7 +15,7 @@ object QuizService extends Directives {
   val route =
     Session.requireSession { session =>
       post {
-        entity(as[Quiz[UserId]]) { quiz =>
+        entity(as[Quiz[UserId, FullAnswer]]) { quiz =>
           complete(QuizRepository.addQuiz(quiz).unsafeToFuture())
         }
       } ~
@@ -35,10 +35,10 @@ object QuizService extends Directives {
     pathPrefix("questions") {
       parameter("quizId".as[Int]) { quizId =>
         get {
-          complete(QuizRepository.getQuestionsForQuiz(quizId, false).unsafeToFuture())
+          complete(QuizRepository.getQuestionsForQuiz(quizId, withAnswers = false).unsafeToFuture())
         } ~
         post {
-          entity(as[List[Question]]) { questionList =>
+          entity(as[List[Question[FullAnswer]]]) { questionList =>
             complete(QuizRepository.addQuestions(quizId, questionList).unsafeToFuture())
           }
         }

@@ -1,33 +1,18 @@
 package quiz.quizes.runner
 
-import akka.actor.{PoisonPill, Props}
+import akka.actor.Props
 import akka.http.scaladsl.common.EntityStreamingSupport
 import akka.http.scaladsl.model.ws.{Message, TextMessage}
-import akka.stream.scaladsl.{Flow, Sink, Source}
+import akka.stream.scaladsl.Flow
 import akka.util.{ByteString, Timeout}
 import io.circe.generic.extras.auto._
-import io.circe.generic.extras.{Configuration, ConfiguredJsonCodec}
+import io.circe.generic.extras.Configuration
 import io.circe.parser.decode
 import io.circe.syntax._
-import quiz.Domain._
+import quiz.Websocket._
 
 import scala.concurrent.duration._
-import quiz.{Db, Main}
-import quiz.Domain.{UserId, UserInfo}
-
-sealed trait Command
-case class Starting(userId: UserId, quizId: Int) extends Command
-case class Answering(userId: UserId, questionId: Int, answerText: String)
-    extends Command
-case class Finishing(userId: UserId, quizId: Int) extends Command
-
-sealed trait Response
-case class AnswerResponse(questionId: Int,
-                          answerText: String,
-                          correct: Boolean)
-    extends Response
-case object StartResponse extends Response
-case class FinishResponse(result: Map[Int, (String, Boolean)]) extends Response
+import quiz.Main
 
 object WebSocket {
 

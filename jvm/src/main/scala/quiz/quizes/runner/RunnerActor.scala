@@ -7,31 +7,39 @@ import quiz.Domain._
 import quiz.quizes.QuizRepository
 import quiz.Domain.UserId
 
+import quiz.Websocket._
+
 case class Uninitialized()
-case class QuizData(quiz: Quiz[UserId], timeStarted: LocalDateTime)
+case class QuizData(quiz: Quiz[UserId, FullAnswer], timeStarted: LocalDateTime)
 
 class QuizActor extends Actor {
   def receive: Receive =
-    active(Uninitialized(), Map.empty[Question, (String, Boolean)])
+    active(Uninitialized(), Map.empty[Question[FullAnswer], (String, Boolean)])
 
-  def active(quizState: Uninitialized,
-             answeredMap: Map[Question, (String, Boolean)]): Receive = {
+  def active(
+      quizState: Uninitialized,
+      answeredMap: Map[Question[FullAnswer], (String, Boolean)]): Receive = {
     case Starting(userId, quizId) =>
       val quizOpt = QuizRepository.getExpandedQuiz(quizId).unsafeRunSync()
       val quiz = quizOpt.getOrElse {
         throw new IllegalArgumentException("No quiz exists with this id")
       }
-      sender() ! StartResponse
+      val answersToSend =
+        quiz.questions.map(q =>
+          q.copy(answers = q.answers.map(_.toAnswerInfo)))
+      sender() ! StartResponse(answersToSend)
       context become active(
         QuizData(quiz, LocalDateTime.now()),
-        Map.empty[Question, (String, Boolean)]
+        Map.empty[Question[FullAnswer], (String, Boolean)]
       )
+    case _ => sender() ! WrongCommand
   }
 
-  def active(quizState: QuizData,
-             answeredMap: Map[Question, (String, Boolean)]): Receive = {
-    case Answering(userId, questionId, answerText) =>
-      val question = quizState.quiz.questions.find(_.id.get == questionId).get
+  def active(
+      quizState: QuizData,
+      answeredMap: Map[Question[FullAnswer], (String, Boolean)]): Receive = {
+    case Answering(questionId, answerText) =>
+      val question = quizState.quiz.questions.find(_.id == questionId).get
       val answer = question.answers.find(_.answer == answerText)
       val correct = answer.exists(_.correct)
       sender() ! AnswerResponse(questionId, answerText, correct)
@@ -39,21 +47,22 @@ class QuizActor extends Actor {
         quizState,
         answeredMap.updated(question, (answerText, correct))
       )
-    case Finishing(userId, quizId) =>
+    case Finishing =>
       val results = getFinalResults(quizState, answeredMap)
       sender() ! FinishResponse(results)
+    case _ => sender() ! WrongCommand
   }
 
   private def getFinalResults(
       quizState: QuizData,
-      answeredMap: Map[Question, (String, Boolean)]
+      answeredMap: Map[Question[FullAnswer], (String, Boolean)]
   ) = {
     val unanswered = quizState.quiz.questions
       .diff(answeredMap.keys.toList)
-      .map(question => question.id.get -> ("", false))
+      .map(question => question.question -> ("", false))
       .toMap
     unanswered ++ answeredMap.map {
-      case (question, value) => (question.id.get, value)
+      case (question, value) => (question.question, value)
     }
   }
 }

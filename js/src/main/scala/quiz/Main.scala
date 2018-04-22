@@ -8,7 +8,7 @@ import org.scalajs.dom.raw.{MouseEvent, Node}
 import org.scalajs.dom.window.location
 import quiz.Domain.UserInfo
 import quiz.services.UserService
-import quiz.ui.{Home, Login, QuizModal, Register}
+import quiz.ui.{Home, Login, Register, QuizRunner}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 

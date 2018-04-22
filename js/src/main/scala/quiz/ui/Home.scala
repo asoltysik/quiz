@@ -4,23 +4,15 @@ import cats.implicits._
 import com.thoughtworks.binding.Binding.{Var, Vars}
 import com.thoughtworks.binding.{Binding, dom}
 import org.scalajs.dom.raw.{MouseEvent, Node}
-import org.scalajs.dom.document
-import quiz.Domain.{Quiz, UserId}
+import quiz.Domain.{AnswerInfo, Quiz, UserId}
 import quiz.{Main, SitePart}
 import quiz.services.QuizService
 
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.scalajs.js
 
 object Home extends SitePart {
 
   override def link: String = s"#home"
-
-  @js.native
-  trait BootstrapModal extends js.Any {
-    def modal(action: String): BootstrapModal = js.native
-    def modal(options: js.Any): BootstrapModal = js.native
-  }
 
   object Model {
 
@@ -34,16 +26,14 @@ object Home extends SitePart {
         })
     }
 
-    val quizes = Vars[Quiz[UserId]]()
+    val quizes = Vars[Quiz[UserId, AnswerInfo]]()
+    val quizStarter = Var[Option[QuizStarter]](None)
   }
 
-  @dom private def quizDescription(quiz: Quiz[UserId]): Binding[Node] = {
-    val openRunner = { event: MouseEvent =>
-      QuizModal.Model.quiz.value = Some(quiz)
-      document
-        .getElementById("quizModal")
-        .asInstanceOf[BootstrapModal]
-        .modal("show")
+  @dom private def quizDescription(
+      quiz: Quiz[UserId, AnswerInfo]): Binding[Node] = {
+    val openRunner = { _: MouseEvent =>
+      Model.quizStarter.value = Some(new QuizStarter(quiz))
     }
 
     <div class="row">
@@ -57,7 +47,6 @@ object Home extends SitePart {
 
   @dom private def renderQuizes: Binding[Node] = {
     <div class="container">
-      { QuizModal.render.bind }
       {
       for (quiz <- Model.quizes) yield {
         quizDescription(quiz).bind
@@ -67,10 +56,19 @@ object Home extends SitePart {
   }
 
   @dom private def loggedView: Binding[Node] = {
-    if (Model.quizes.bind.isEmpty) {
-      Model.refreshQuizes()
+    Model.quizStarter.bind match {
+      case Some(quizStarter) => quizStarter.render.bind
+      case None =>
+        if (Model.quizes.bind.isEmpty) {
+          Model.refreshQuizes()
+        }
+        <div class="container row">
+          <div class="col-3">
+            <button class="btn btn-primary">Add a quiz</button>
+          </div>
+          <div class="col-9">{renderQuizes.bind}</div>
+        </div>
     }
-    renderQuizes.bind
   }
 
   @dom private def unloggedView: Binding[Node] = {

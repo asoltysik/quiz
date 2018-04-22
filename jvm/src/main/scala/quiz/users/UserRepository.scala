@@ -16,7 +16,7 @@ object UserRepository {
       .withUniqueGeneratedKeys[UserInfo]("id", "email", "name")
       .exceptSqlState {
         case sqlstate.class23.UNIQUE_VIOLATION => throw EmailAlreadyExists()
-        case _                                 => throw UnspecifiedError()
+        case _ => throw UnspecifiedError()
       }
       .transact(Db.xa)
   }

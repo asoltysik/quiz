@@ -41,7 +41,7 @@ lazy val jvm = (project in file("jvm")).settings(
   (Compile / compile) := ((Compile / compile) dependsOn (fastOptJS in (js, Compile))).value,
   resources in Compile += (fastOptJS in(js, Compile)).value.data,
   mainClass in reStart := Some("quiz.Main")
-).dependsOn(sharedJVM)
+).dependsOn(sharedJVM, js)
 
 lazy val js = (project in file("js")).settings(
   scalaVersion := scalaV,
@@ -64,9 +64,14 @@ lazy val js = (project in file("js")).settings(
 lazy val shared = (crossProject.crossType(CrossType.Pure) in file("shared")).settings(
   scalaVersion := scalaV,
   libraryDependencies ++= Seq(
-    "org.typelevel" %% "cats-core" % "1.0.1"
-  )
+    "org.typelevel" %% "cats-core" % "1.0.1",
+    "io.circe" %% "circe-core" % circeVersion,
+    "io.circe" %% "circe-generic" % circeVersion,
+    "io.circe" %% "circe-generic-extras" % circeVersion,
+    "io.circe" %% "circe-parser" % circeVersion,
+  ),
+  addCompilerPlugin("org.scalamacros" % "paradise" % "2.1.0" cross CrossVersion.full)
 )
 
-lazy val sharedJVM = shared.jvm.disablePlugins(RevolverPlugin)
-lazy val sharedJS = shared.js.disablePlugins(RevolverPlugin)
+lazy val sharedJVM = shared.jvm
+lazy val sharedJS = shared.js

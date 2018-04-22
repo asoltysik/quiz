@@ -18,7 +18,7 @@ object Main extends App {
 
   // @formatter:off
   val route =
-    path("ws-echo") {
+    path("ws" / "quizRunner") {
       get {
         handleWebSocketMessages(WebSocket.webSocketService)
       }
