@@ -3,6 +3,7 @@ package quiz.users
 import cats.effect.IO
 import doobie.implicits._
 import doobie.postgres._
+import doobie.util.log.LogHandler
 import org.mindrot.jbcrypt.BCrypt
 import quiz.Db
 import quiz.Domain.{User, UserInfo}
@@ -10,13 +11,14 @@ import quiz.Errors.{EmailAlreadyExists, UnspecifiedError}
 
 object UserRepository {
 
+  implicit val doobieLogger: LogHandler = Db.doobieLogger
+
   def addUser(user: User): IO[UserInfo] = {
     val hash = BCrypt.hashpw(user.password, BCrypt.gensalt())
     sql"insert into users (email, name, hashed_password) values (${user.email}, ${user.name}, $hash)".update
       .withUniqueGeneratedKeys[UserInfo]("id", "email", "name")
-      .exceptSqlState {
+      .exceptSomeSqlState {
         case sqlstate.class23.UNIQUE_VIOLATION => throw EmailAlreadyExists()
-        case _ => throw UnspecifiedError()
       }
       .transact(Db.xa)
   }

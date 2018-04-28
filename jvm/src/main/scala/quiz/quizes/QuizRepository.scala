@@ -11,6 +11,8 @@ import quiz.Domain._
 
 object QuizRepository {
 
+  implicit val doobieLogger: LogHandler = Db.doobieLogger
+
   // this is a workaround for not being able to exclude fields from compositing in doobie
   // a little bit ugly but saves a lot of complexity in queries
   implicit val dummyListFullAnswer: Composite[List[FullAnswer]] =

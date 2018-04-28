@@ -1,5 +1,5 @@
-val circeVersion = "0.9.1"
-val doobieVersion = "0.5.0"
+val circeVersion = "0.9.3"
+val doobieVersion = "0.5.2"
 
 val scalaV = "2.12.5"
 
@@ -27,13 +27,15 @@ lazy val jvm = (project in file("jvm")).settings(
       "org.tpolecat" %% "doobie-core" % doobieVersion,
       "org.tpolecat" %% "doobie-postgres"  % doobieVersion,
 
+      "ch.qos.logback" % "logback-classic" % "1.2.3",
+      "com.typesafe.scala-logging" %% "scala-logging" % "3.9.0",
+
       "org.mindrot" % "jbcrypt" % "0.4",
 
       "com.lihaoyi" %% "utest" % "0.6.3" % "test"
   ),
   copyJs := {
     fastOptJS in (js, Compile)
-    println("blabla")
     new File("js/target/scala-2.12/*.js").listFiles().foreach(
       file => Files.copy(file.toPath, new File("jvm/target/scala-2.12/classes").toPath)
     )
