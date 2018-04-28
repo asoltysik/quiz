@@ -13,11 +13,16 @@ import quiz.Errors.{
 
 object UserValidation {
 
+  val minPasswordLength = 6
+  val maxPasswordLength = 50
+
   type ValidationResult[A] = ValidatedNel[RegistrationError, A]
 
   private def validateEmail(email: String): ValidationResult[String] = {
-    // simple validation just for user convenience, should be email confirmation in the future
-    """(\w+)@([\w\.]+)""".r.findFirstIn(email) match {
+    /* This is just for user convenience, one must be careful with email validation as
+     * very.“(),:;<>[]”.VERY.“very@\\ "very”.unusual@strange.example.com
+     * is apparently a valid email address */
+    """.+@.+""".r.findFirstIn(email) match {
       case Some(validEmail) => email.validNel
       case None => WrongEmailFormat().invalidNel
     }
@@ -31,10 +36,12 @@ object UserValidation {
   }
 
   private def validatePassword(password: String): ValidationResult[String] = {
-    if (6 to 50 contains password.length)
+    if (minPasswordLength to maxPasswordLength contains password.length)
       password.validNel
     else
-      WrongPasswordLength(password.length, 6, 50).invalidNel
+      WrongPasswordLength(password.length,
+                          minPasswordLength,
+                          maxPasswordLength).invalidNel
   }
 
   def validate(user: User): ValidationResult[User] = {

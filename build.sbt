@@ -42,7 +42,8 @@ lazy val jvm = (project in file("jvm")).settings(
   },
   (Compile / compile) := ((Compile / compile) dependsOn (fastOptJS in (js, Compile))).value,
   resources in Compile += (fastOptJS in(js, Compile)).value.data,
-  mainClass in reStart := Some("quiz.Main")
+  mainClass in reStart := Some("quiz.Main"),
+  testFrameworks += new TestFramework("utest.runner.Framework")
 ).dependsOn(sharedJVM, js)
 
 lazy val js = (project in file("js")).settings(
