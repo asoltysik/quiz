@@ -5,7 +5,7 @@ import io.circe.generic.extras.Configuration
 import quiz.Session
 import quiz.Domain._
 
-object QuizService extends Directives {
+object QuizEndpoints extends Directives {
   import de.heikoseeberger.akkahttpcirce.FailFastCirceSupport._
   import io.circe.generic.extras.auto._
 

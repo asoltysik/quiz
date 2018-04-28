@@ -9,7 +9,7 @@ import quiz.Session
 import quiz.Domain._
 import quiz.Errors.{EmailAlreadyExists, Errors, UnspecifiedError}
 
-object UserService extends Directives {
+object UserEndpoints extends Directives {
   import de.heikoseeberger.akkahttpcirce.FailFastCirceSupport._
   import io.circe.generic.auto._
 

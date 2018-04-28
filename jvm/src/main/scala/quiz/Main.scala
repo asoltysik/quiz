@@ -4,9 +4,9 @@ import akka.actor.ActorSystem
 import akka.http.scaladsl.Http
 import akka.stream.ActorMaterializer
 import akka.http.scaladsl.server.Directives._
-import quiz.quizes.QuizService
+import quiz.quizes.QuizEndpoints
 import quiz.quizes.runner.WebSocket
-import quiz.users.UserService
+import quiz.users.UserEndpoints
 
 import scala.io.StdIn
 
@@ -25,10 +25,10 @@ object Main extends App {
     } ~
     rejectEmptyResponse {
       pathPrefix("quizes") {
-        QuizService.route
+        QuizEndpoints.route
       } ~
       pathPrefix("users") {
-        UserService.route
+        UserEndpoints.route
       }
     } ~
     pathPrefix("session") {
