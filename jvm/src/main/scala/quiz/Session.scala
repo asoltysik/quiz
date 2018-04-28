@@ -1,7 +1,7 @@
 package quiz
 
 import akka.http.scaladsl.model.StatusCodes
-import akka.http.scaladsl.server.Directives
+import akka.http.scaladsl.server.{Directive0, Directives}
 import com.softwaremill.session._
 import com.softwaremill.session.SessionDirectives._
 import com.softwaremill.session.CsrfDirectives.{
@@ -32,16 +32,15 @@ object Session extends Directives {
       )
   }
 
-  val sessionConfig = SessionConfig.default(
-    "a very secret and seucure server secretasddddddddddddddddddddddddddddddddddddddddddddsadsadsadsaaaaaaaaaaa"
-  )
+  val sessionConfig: SessionConfig =
+    SessionConfig.default(sys.env("SESSION_SECRET"))
   implicit val sessionManager =
     new SessionManager[ClientSession](sessionConfig)
 
   val requireSession =
     requiredSession(SessionOptions.oneOff, SessionOptions.usingCookies)
 
-  def setClientSession(session: ClientSession) =
+  def setClientSession(session: ClientSession): Directive0 =
     setSession(SessionOptions.oneOff, SessionOptions.usingCookies, session)
 
   // @formatter:off

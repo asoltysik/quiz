@@ -9,9 +9,7 @@ object Db {
 
   val xa: Transactor.Aux[IO, Unit] = Transactor.fromDriverManager[IO](
     "org.postgresql.Driver",
-    "jdbc:postgresql:quizes",
-    "postgres",
-    "postgres"
+    sys.env("JDBC_DATABASE_URL")
   )
 
   val doobieLogger: LogHandler = {
