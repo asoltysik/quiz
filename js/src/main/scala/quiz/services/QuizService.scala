@@ -14,12 +14,10 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 object QuizService {
 
-  def getAllQuizes()
-    : EitherT[Future, Exception, List[Quiz[UserId, AnswerInfo]]] = {
+  def getAllQuizes(): EitherT[Future, Exception, List[Quiz]] = {
     Request
       .get("/quizes")
-      .subflatMap(req =>
-        decode[List[Quiz[UserId, AnswerInfo]]](req.responseText))
+      .subflatMap(req => decode[List[Quiz]](req.responseText))
   }
 
 }

@@ -12,9 +12,11 @@ import quiz.services.QuizWebsocket
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
-class QuizRunner(quiz: Quiz[UserId, AnswerInfo], ws: QuizWebsocket) {
+class QuizRunner(quiz: Quiz,
+                 questions: List[Question[AnswerInfo]],
+                 ws: QuizWebsocket) {
 
-  val numberOfQuestions = quiz.questions.length
+  val numberOfQuestions = questions.length
 
   object Model {
     sealed trait AnswerResult
@@ -25,7 +27,7 @@ class QuizRunner(quiz: Quiz[UserId, AnswerInfo], ws: QuizWebsocket) {
     val currentNumber = Var(1)
     val finished = Var(false)
     val quizState = Var[Map[Question[AnswerInfo], AnswerResult]](
-      quiz.questions.map(_ -> Unanswered).toMap
+      questions.map(_ -> Unanswered).toMap
     )
   }
   @dom private def answerLabel(question: Question[AnswerInfo],

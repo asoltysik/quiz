@@ -16,7 +16,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 import scala.concurrent.{Future, Promise}
 
-class QuizWebsocket(quiz: Quiz[UserId, AnswerInfo]) {
+class QuizWebsocket(quiz: Quiz) {
   implicit val circeConfig =
     Configuration.default.withDiscriminator("commandType")
 

@@ -26,12 +26,11 @@ object Home extends SitePart {
         })
     }
 
-    val quizes = Vars[Quiz[UserId, AnswerInfo]]()
+    val quizes = Vars[Quiz]()
     val quizStarter = Var[Option[QuizStarter]](None)
   }
 
-  @dom private def quizDescription(
-      quiz: Quiz[UserId, AnswerInfo]): Binding[Node] = {
+  @dom private def quizDescription(quiz: Quiz): Binding[Node] = {
     val openRunner = { _: MouseEvent =>
       Model.quizStarter.value = Some(new QuizStarter(quiz))
     }

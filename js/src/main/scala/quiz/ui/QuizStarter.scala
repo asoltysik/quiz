@@ -11,7 +11,7 @@ import quiz.services.QuizWebsocket
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
-class QuizStarter(quiz: Quiz[UserId, AnswerInfo]) {
+class QuizStarter(quiz: Quiz) {
 
   val ws = new QuizWebsocket(quiz)
 
@@ -44,7 +44,7 @@ class QuizStarter(quiz: Quiz[UserId, AnswerInfo]) {
       ws.start(Main.Model.user.value.get)
         .map(response => {
           Model.quizRunner.value =
-            new QuizRunner(quiz.copy(questions = response.questions), ws).some
+            new QuizRunner(quiz, response.questions, ws).some
         })
         .leftMap(println(_))
     }

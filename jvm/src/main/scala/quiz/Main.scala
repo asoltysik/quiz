@@ -1,53 +1,27 @@
 package quiz
 
-import akka.actor.ActorSystem
-import akka.http.scaladsl.Http
-import akka.stream.ActorMaterializer
-import akka.http.scaladsl.server.Directives._
-import quiz.quizes.QuizEndpoints
-import quiz.quizes.runner.WebSocket
-import quiz.users.UserEndpoints
+import cats.effect.IO
+import fs2.{Stream, StreamApp}
+import org.http4s.server.blaze.BlazeBuilder
+import quiz.quizes.{PostgresQuizRepository, QuizEndpoints}
+import quiz.users.{PostgresUserRepository, UserEndpoints}
 
-import scala.io.StdIn
+import scala.concurrent.ExecutionContext.Implicits.global
 
-object Main extends App {
+object Main extends StreamApp[IO] {
+  override def stream(
+      args: List[String],
+      requestShutdown: IO[Unit]): Stream[IO, StreamApp.ExitCode] = {
 
-  implicit val system = ActorSystem("quiz")
-  implicit val materializer = ActorMaterializer()
-  implicit val executionContext = system.dispatcher
+    val userRepo = PostgresUserRepository(Db.xa)
+    val quizRepo = PostgresQuizRepository(Db.xa)
 
-  // @formatter:off
-  val route =
-    path("ws" / "quizRunner") {
-      get {
-        handleWebSocketMessages(WebSocket.webSocketService)
-      }
-    } ~
-    rejectEmptyResponse {
-      pathPrefix("quizes") {
-        QuizEndpoints.route
-      } ~
-      pathPrefix("users") {
-        UserEndpoints.route
-      }
-    } ~
-    pathPrefix("session") {
-      Session.routes
-    } ~
-    pathSingleSlash {
-      getFromResource("index.html")
-    } ~
-    path("quiz-fastopt.js") {
-      getFromResource("quiz-fastopt.js")
-    } ~
-    getFromResourceDirectory("")
-  // @formatter:on
+    val userService = UserEndpoints(userRepo).service
+    val quizService = QuizEndpoints(quizRepo).service
 
-  val bindingFuture = Http().bindAndHandle(route, "localhost", 8080)
-
-  println("Server is running on localhost:8080, type stop to stop.")
-  while (StdIn.readLine() != "stop") {}
-  bindingFuture
-    .flatMap(_.unbind())
-    .onComplete(_ => system.terminate())
+    BlazeBuilder[IO]
+      .mountService(userService, "/users")
+      .mountService(quizService, "/quizes")
+      .serve
+  }
 }

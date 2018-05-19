@@ -138,6 +138,9 @@ tags
 ### Bloop ###
 .bloop/
 
+### Ensime ###
+.ensime
+
 
 # End of https://www.gitignore.io/api/sbt,vim,scala,eclipse,intellij
 

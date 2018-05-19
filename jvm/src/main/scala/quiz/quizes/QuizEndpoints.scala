@@ -1,49 +1,18 @@
 package quiz.quizes
 
-import akka.http.scaladsl.server.Directives
-import io.circe.generic.extras.Configuration
-import quiz.Session
-import quiz.Domain._
+import cats.syntax._
+import cats.implicits._
+import cats._
+import cats.instances._
+import cats.effect.Effect
+import org.http4s._
+import org.http4s.dsl.Http4sDsl
 
-object QuizEndpoints extends Directives {
-  import de.heikoseeberger.akkahttpcirce.FailFastCirceSupport._
-  import io.circe.generic.extras.auto._
+case class QuizEndpoints[F[_]: Effect](quizRepository: QuizRepository[F])
+    extends Http4sDsl[F] {
 
-  implicit val circeConfig: Configuration = Configuration.default.withDefaults
-
-  // @formatter:off
-  val route =
-    Session.requireSession { session =>
-      post {
-        entity(as[Quiz[UserId, FullAnswer]]) { quiz =>
-          complete(QuizRepository.addQuiz(quiz).unsafeToFuture())
-        }
-      } ~
-      path(IntNumber) { id =>
-        parameter("expanded".as[Boolean]) { expanded =>
-          if (expanded) {
-            complete(QuizRepository.getExpandedQuiz(id).unsafeToFuture())
-          } else {
-            complete(QuizRepository.getQuiz(id).unsafeToFuture())
-          }
-        }
-      } ~
-      get {
-        complete(QuizRepository.getQuizes().unsafeToFuture())
-      }
-    } ~
-    pathPrefix("questions") {
-      parameter("quizId".as[Int]) { quizId =>
-        get {
-          complete(QuizRepository.getQuestionsForQuiz(quizId, withAnswers = false).unsafeToFuture())
-        } ~
-        post {
-          entity(as[List[Question[FullAnswer]]]) { questionList =>
-            complete(QuizRepository.addQuestions(quizId, questionList).unsafeToFuture())
-          }
-        }
-      }
-    }
-  // @formatter:on
-
+  val service: HttpService[F] = HttpService {
+    case GET -> Root =>
+      quizRepository.getQuizes().flatMap(x => Ok("hi"))
+  }
 }

@@ -1,6 +1,6 @@
 package quiz.quizes.runner
 
-import akka.actor.Props
+/*import akka.actor.Props
 import akka.http.scaladsl.common.EntityStreamingSupport
 import akka.http.scaladsl.model.ws.{Message, TextMessage}
 import akka.stream.scaladsl.Flow
@@ -42,4 +42,4 @@ object WebSocket {
       .map(response => TextMessage(response.asJson.toString))
   }
 
-}
+}*/
